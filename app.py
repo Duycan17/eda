@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+from wordcloud import WordCloud
 
 
 DATA_FILES = [
@@ -38,6 +39,7 @@ STOP_WORDS = {
     "airport",
     "also",
     "and",
+    "any",
     "are",
     "around",
     "bangkok",
@@ -46,6 +48,7 @@ STOP_WORDS = {
     "but",
     "can",
     "could",
+    "day",
     "for",
     "from",
     "get",
@@ -55,6 +58,7 @@ STOP_WORDS = {
     "hotel",
     "just",
     "line",
+    "might",
     "not",
     "our",
     "out",
@@ -62,19 +66,23 @@ STOP_WORDS = {
     "really",
     "should",
     "skytrain",
+    "some",
     "that",
     "the",
     "their",
     "there",
     "they",
     "this",
+    "time",
     "train",
     "very",
     "was",
     "were",
     "what",
     "when",
+    "will",
     "with",
+    "would",
     "you",
     "your",
 }
@@ -176,6 +184,20 @@ def top_words(text_series: pd.Series, n: int = 20) -> pd.DataFrame:
         return pd.DataFrame(columns=["word", "count"])
     counts = pd.Series(filtered).value_counts().head(n)
     return counts.rename_axis("word").reset_index(name="count")
+
+
+def build_wordcloud_image(text_series: pd.Series) -> object | None:
+    text = " ".join(text_series.dropna().astype(str))
+    if not text.strip():
+        return None
+    cloud = WordCloud(
+        width=1400,
+        height=700,
+        background_color="white",
+        stopwords=STOP_WORDS,
+        collocations=False,
+    ).generate(text)
+    return cloud.to_array()
 
 
 def main() -> None:
@@ -343,13 +365,12 @@ def main() -> None:
     fig_lang = px.pie(language_counts, names="review_language", values="count", title="Language Mix")
     right2.plotly_chart(fig_lang, use_container_width=True)
 
-    st.subheader("Top Words in Selected Reviews")
-    words = top_words(filtered["clean_text"], n=20)
-    if words.empty:
+    st.subheader("Word Cloud (Cleaned Text)")
+    cloud_image = build_wordcloud_image(filtered["clean_text"])
+    if cloud_image is None:
         st.write("No extractable words for the current filters.")
     else:
-        fig_words = px.bar(words.sort_values("count"), x="count", y="word", orientation="h")
-        st.plotly_chart(fig_words, use_container_width=True)
+        st.image(cloud_image, caption="Most frequent cleaned terms", use_column_width=True)
 
     preview_cols = [
         "source",

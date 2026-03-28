@@ -17,5 +17,8 @@ It derives `sentiment` from `review_rating`:
 NLP-oriented cleaning is applied before analysis:
 - URL/link removal
 - Emoji normalization (`emoji` token)
+- Hashtag removal
 - Deduplication by (`source`, `review_id`) then by (`source`, cleaned text)
+
+The dashboard displays a word cloud from cleaned review text.
 # eda
