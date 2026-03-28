@@ -13,4 +13,9 @@ The dashboard loads:
 It derives `sentiment` from `review_rating`:
 - Tripadvisor: 1-2 negative, 3 neutral, 4-5 positive
 - Reddit: score quantile rule (Q1/Q3 computed from current dataset)
+
+NLP-oriented cleaning is applied before analysis:
+- URL/link removal
+- Emoji normalization (`emoji` token)
+- Deduplication by (`source`, `review_id`) then by (`source`, cleaned text)
 # eda
